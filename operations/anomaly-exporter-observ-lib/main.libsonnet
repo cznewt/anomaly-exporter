@@ -1,28 +1,46 @@
 // observ-viz pack for anomaly-exporter (built on cznewt/observ-viz).
 //
-//   local p = (import 'main.libsonnet').new({ alertSelector: 'job=~"anomaly-.+"' });
-//   p.grafana.dashboard        // a Grafana v2 dashboard (.toSpec() for JSON)
-//   p.grafana.elements         // reuse panels in a larger board
-//   p.asMonitoringMixin()      // { grafanaDashboards+, prometheusAlerts+ }
+//   local p = (import 'main.libsonnet').new({
+//     detectorSelectors+: { prophet: 'job="anomaly-mem"' },
+//   });
+//   p.grafana.dashboard      // a Grafana v2 dashboard (.toSpec() for JSON)
+//   p.grafana.elements       // the panels, to reuse in a larger board
+//   p.asMonitoringMixin()    // { grafanaDashboards+, prometheusAlerts+ }
 //
-// See config.libsonnet for the tunable fields.
+// Signals are split one file per detector under signals/ (see config.libsonnet).
 local pack = import 'libs/common-lib/pack.libsonnet';
-local signal = import 'libs/common-lib/signal/main.libsonnet';
 
 {
   new(config={}):
     local cfg = (import 'config.libsonnet') + config;
 
-    local sig(name, expr, unit='short') =
-      signal.new(name, 'prometheus', cfg.datasource, expr, unit).filteringSelector(cfg.selector);
+    // Dashboard row order for the per-detector groups.
+    local order = ['prophet', 'holt_winters', 'iqr', 'zscore', 'mean_sigma', 'ewma'];
 
-    local signals = {
-      score: sig('Anomaly score', 'anomaly_score{%(queriesSelector)s}', 'percentunit'),
-      probeSuccess: sig('Probe success', 'anomaly_probe_success{%(queriesSelector)s}', 'short'),
-      probeDuration: sig('Probe duration', 'anomaly_probe_duration_seconds{%(queriesSelector)s}', 's'),
-      seriesScored: sig('Series scored', 'anomaly_series_scored{%(queriesSelector)s}', 'short'),
-      seriesTotal: sig('Series total', 'anomaly_series_total{%(queriesSelector)s}', 'short'),
-    };
+    // One panel group per detector, from its signals file.
+    local groups = [
+      {
+        title: d,
+        width: 12,
+        height: 7,
+        elements: {
+          [d + '_score']: cfg.signals[d].score.asTimeSeries(d + ' score'),
+          [d + '_success']: cfg.signals[d].probeSuccess.asStat(d + ' probe success'),
+          [d + '_duration']: cfg.signals[d].probeDuration.asTimeSeries(d + ' probe duration'),
+        },
+      }
+      for d in order
+    ];
+
+    // All signals, namespaced by detector, for the pack .signals accessor.
+    local allSignals = std.foldl(
+      function(acc, d) acc + {
+        [d + '_' + k]: cfg.signals[d][k]
+        for k in std.objectFields(cfg.signals[d])
+      },
+      order,
+      {}
+    );
 
     local thr = std.toString(cfg.scoreThreshold);
     local alerts = [
@@ -73,25 +91,5 @@ local signal = import 'libs/common-lib/signal/main.libsonnet';
       },
     ];
 
-    pack.build(cfg, signals, [
-      {
-        title: 'Anomaly scores',
-        width: 12,
-        height: 7,
-        elements: {
-          score: signals.score.asTimeSeries('Anomaly score'),
-          probeSuccess: signals.probeSuccess.asStat('Probe success'),
-        },
-      },
-      {
-        title: 'Probe health',
-        width: 12,
-        height: 7,
-        elements: {
-          probeDuration: signals.probeDuration.asTimeSeries('Probe duration'),
-          seriesScored: signals.seriesScored.asTimeSeries('Series scored'),
-          seriesTotal: signals.seriesTotal.asTimeSeries('Series total'),
-        },
-      },
-    ], alerts),
+    pack.build(cfg, allSignals, groups, alerts),
 }
