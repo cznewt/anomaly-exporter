@@ -28,8 +28,8 @@ as it does for other multi-target exporters.
 - [Configuration](configuration.md): the config file, module fields, and templates.
 - [Detectors](detectors.md): the detector catalog, with method, math, parameters,
   and trade-offs for each.
-- [Prometheus](prometheus.md): scrape jobs, relabeling, the Operator `Probe` CRD,
-  and alerting.
+- [Integrations](integrations.md): Prometheus scrape jobs, the Operator `Probe`
+  CRD, and Grafana Alloy, plus alerting.
 - [Endpoints](endpoints.md): the HTTP endpoints and exported metrics.
 
 ## Install

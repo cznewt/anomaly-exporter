@@ -56,5 +56,5 @@ When none is set, the image's baked-in default config is used.
 The `ServiceMonitor` here scrapes the exporter's own `/metrics` (operational
 metrics) only. Anomaly **scores** come from `/probe` and use the multi-target
 pattern, so configure a scrape job (or a Prometheus Operator `Probe`) that passes
-the query as the target. See
-[docs/prometheus.md](https://github.com/cznewt/anomaly-exporter/blob/main/docs/prometheus.md).
+the query as the target (Prometheus, the Operator `Probe` CRD, or Grafana Alloy).
+See [docs/integrations.md](https://github.com/cznewt/anomaly-exporter/blob/main/docs/integrations.md).

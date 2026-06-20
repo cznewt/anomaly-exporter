@@ -34,7 +34,7 @@ nav:
   - Usage:
     - Configuration: configuration.md
     - Detectors: detectors.md
-    - Prometheus: prometheus.md
+    - Integrations: integrations.md
   - Reference:
     - Endpoints: endpoints.md
 

@@ -12,7 +12,7 @@ resulting `anomaly_score` like any other metric.
 
 Full documentation is in [`docs/`](docs/index.md): a detailed
 [detector reference](docs/detectors.md), [configuration](docs/configuration.md),
-[Prometheus wiring](docs/prometheus.md), and the [endpoint reference](docs/endpoints.md).
+[integrations](docs/integrations.md) (Prometheus + Alloy), and the [endpoint reference](docs/endpoints.md).
 
 ## How it works
 
@@ -161,7 +161,7 @@ scrape_configs:
 
 Add one job per module; list several queries under `targets:` to score them all
 with the same module. More detail, including a Prometheus Operator `Probe`
-example, is in [docs/prometheus.md](docs/prometheus.md).
+example and a Grafana Alloy config, is in [docs/integrations.md](docs/integrations.md).
 
 ## Mapping from blackbox_exporter
 
