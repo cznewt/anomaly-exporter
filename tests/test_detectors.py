@@ -64,4 +64,12 @@ def test_holt_winters_seasonal():
 def test_prophet_if_available():
     pytest.importorskip("prophet")
     det = DETECTORS["prophet"](mod("prophet"))
-    assert det.score(make_series(baseline())) < 0.8
+    # Prophet is a forecast-band detector. On this short window it auto-disables
+    # seasonality, so feed it a gently trending (forecastable) clean baseline
+    # rather than the light detectors' raw sine, which trend-only Prophet would
+    # mis-extrapolate. A clean continuation must score low; a real spike, high.
+    clean = [100 + 0.05 * i + ((i * 29) % 7 - 3) * 0.2 for i in range(120)]
+    assert det.score(make_series(clean)) < 0.8
+    spiked = list(clean)
+    spiked[-2] = 100_000.0
+    assert det.score(make_series(spiked)) > 0.9
