@@ -6,6 +6,7 @@ IMAGE := "cznewt/anomaly-exporter"
 TAG := `cat VERSION`
 CHART := "operations/anomaly-exporter-helm-chart"
 CHARTS_NAMESPACE := "cznewt/charts"
+OBSERV_LIB := "operations/anomaly-exporter-observ-lib"
 
 default:
   just --list
@@ -79,3 +80,21 @@ chart-publish:
     rm -rf /tmp/anomaly-exporter-charts && mkdir -p /tmp/anomaly-exporter-charts
     helm package {{CHART}} -d /tmp/anomaly-exporter-charts
     helm push /tmp/anomaly-exporter-charts/*.tgz "oci://{{REGISTRY}}/{{CHARTS_NAMESPACE}}"
+
+# --- Observability library (observ-viz pack) ---
+
+# Vendor the observ-lib deps (observ-viz) via jsonnet-bundler
+observ-lib-vendor:
+    cd {{OBSERV_LIB}} && jb install
+
+# Render the observ-lib: dashboards_out/*.json + prometheus_alerts.yaml
+observ-lib-build: observ-lib-vendor
+    cd {{OBSERV_LIB}} && mkdir -p dashboards_out && jsonnet -J vendor -m dashboards_out lib/dashboards.jsonnet && jsonnet -J vendor -S lib/alerts.jsonnet > prometheus_alerts.yaml
+
+# promtool-test the rendered alerts
+observ-lib-test:
+    cd {{OBSERV_LIB}} && promtool test rules tests/*.yaml
+
+# Format the observ-lib jsonnet
+observ-lib-fmt:
+    cd {{OBSERV_LIB}} && find . -name vendor -prune -o \( -name '*.libsonnet' -o -name '*.jsonnet' \) -print | xargs -n 1 jsonnetfmt -i

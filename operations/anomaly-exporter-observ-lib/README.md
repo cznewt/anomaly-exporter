@@ -1,62 +1,59 @@
 # anomaly-exporter-observ-lib
 
-A Grafana/Jsonnet observability library (monitoring mixin) for
-[anomaly-exporter](https://github.com/cznewt/anomaly-exporter): starter Prometheus
-alerts, a recording rule, and an overview dashboard built with
-[grafonnet](https://github.com/grafana/grafonnet).
+An [observ-viz](https://github.com/cznewt/observ-viz) pack for
+[anomaly-exporter](https://github.com/cznewt/anomaly-exporter): a Grafana v2
+dashboard plus Prometheus alerts, built from a small set of signals. It mirrors
+the layout of observ-viz's other packs (e.g. `memcached-observ-lib`).
 
-> Scaffold. The structure and a baseline of alerts/dashboard are here; extend the
-> signals, panels, and thresholds to taste. It has not been compiled in this repo
-> (no jsonnet toolchain here) -- run `make fmt build` to format, render, and shake
-> out any issues.
+> Built on observ-viz; not compiled in this repo (no jsonnet toolchain here).
+> Run `just observ-lib-build` (from the repo root) to `jb install` and render,
+> which will shake out any issues.
 
-## Layout
+## Files
 
 ```
-config.libsonnet      tunable selectors, labels, thresholds (_config)
-mixin.libsonnet       merges alerts + rules + dashboards + config
-alerts/alerts.libsonnet   prometheusAlerts (AnomalyDetected, probe failing, ...)
-rules/rules.libsonnet     prometheusRules (recording rules)
-dashboards/           grafanaDashboards (overview)
-lib/*.jsonnet         render entrypoints used by the Makefile
-tests/tests.yaml      promtool unit tests for the alerts
+config.libsonnet   default config (uid, selectors, thresholds)
+main.libsonnet     new(config) -> pack.build(signals, groups, alerts)
+mixin.libsonnet    asMonitoringMixin(): grafanaDashboards + prometheusAlerts
+lib/*.jsonnet      render entrypoints (dashboards JSON, alerts YAML)
+tests/tests.yaml   promtool unit tests for the alerts
+jsonnetfile.json   depends on cznewt/observ-viz
+```
+
+## Use
+
+```jsonnet
+local p = (import 'main.libsonnet').new({
+  alertSelector: 'job=~"anomaly-.+"',   // scope alerts to your probe jobs
+  scoreThreshold: 0.9,
+});
+
+p.grafana.dashboard      // a Grafana v2 dashboard (.toSpec() for JSON)
+p.grafana.elements       // the panels, to reuse in a larger board
+p.asMonitoringMixin()    // { grafanaDashboards+::, prometheusAlerts+:: }
 ```
 
 ## Build
 
-Needs `jb` (jsonnet-bundler), `jsonnet`, `jsonnetfmt`, and `promtool` on PATH.
+Needs `jb`, `jsonnet`, `jsonnetfmt`, and `promtool` on PATH. From the repo root:
 
 ```bash
-make vendor      # jb install (grafonnet, etc.)
-make build       # -> prometheus_alerts.yaml, prometheus_rules.yaml, dashboards_out/*.json
-make fmt lint test
+just observ-lib-build   # jb install + render dashboards_out/*.json + prometheus_alerts.yaml
+just observ-lib-test    # promtool-test the rendered alerts
+just observ-lib-fmt     # jsonnetfmt
 ```
 
-## Configure
+## Selectors
 
-Override anything under `_config` (see `config.libsonnet`). Note the two
-selectors:
+Three selectors, because the exporter's own metrics and its probe output are
+scraped by different jobs:
 
-- `selector` (default `job="anomaly-exporter"`) targets the exporter's **own**
-  metrics from the single-target `/metrics` scrape (`up`,
-  `anomaly_exporter_probes_total`, ...).
-- `scoreSelector` (default empty = all) targets the **probe** series
-  (`anomaly_score`, `anomaly_probe_success`) that the per-module `/probe` scrape
-  jobs produce, which usually carry a different `job` label.
+- `selector` (default `job=~"$job"`) drives the **dashboard** through the `$job`
+  template variable, over the probe series (`anomaly_score`, ...).
+- `alertSelector` (default empty = all) is the **static** selector for alert
+  expressions on the probe series (alerts cannot use `$job`).
+- `exporterSelector` (default `job="anomaly-exporter"`) is for alerts on the
+  exporter's own `/metrics` (`up`, `anomaly_exporter_probes_total`).
 
-```jsonnet
-local mixin = (import 'mixin.libsonnet') + {
-  _config+:: {
-    scoreSelector: 'job=~"anomaly-.+"',
-    alerts+: { scoreThreshold: 0.9 },
-  },
-};
-```
-
-## Consume
-
-The mixin exposes the standard `prometheusAlerts`, `prometheusRules`, and
-`grafanaDashboards` keys, so it drops into the monitor-tools mixin pipeline or any
-mimirtool / grizzly workflow. See
-[docs/integrations.md](https://github.com/cznewt/anomaly-exporter/blob/main/docs/integrations.md)
-for how the exporter is scraped in the first place.
+See the [Observability docs](https://cznewt.github.io/anomaly-exporter/observ-lib/)
+and [Integrations](https://github.com/cznewt/anomaly-exporter/blob/main/docs/integrations.md).
