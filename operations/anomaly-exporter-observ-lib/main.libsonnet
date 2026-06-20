@@ -91,5 +91,18 @@ local pack = import 'libs/common-lib/pack.libsonnet';
       },
     ];
 
-    pack.build(cfg, allSignals, groups, alerts),
+    local rules = [
+      {
+        name: 'anomaly-exporter',
+        rules: [
+          {
+            record: 'instance:anomaly_score:max',
+            expr: 'max by (instance) (anomaly_score{' + cfg.alertSelector + '})',
+          },
+        ],
+      },
+    ];
+
+    pack.build(cfg, allSignals, groups, alerts)
+    + { prometheus+: { recordingRules: rules } },
 }

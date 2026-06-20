@@ -1,5 +1,2 @@
 vendor/
-dashboards_out/
-prometheus_alerts.yaml
-prometheus_rules.yaml
 tmp/

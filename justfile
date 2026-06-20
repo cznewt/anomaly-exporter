@@ -87,9 +87,9 @@ chart-publish:
 observ-lib-vendor:
     cd {{OBSERV_LIB}} && jb install
 
-# Render the observ-lib: dashboards_out/*.json + prometheus_alerts.yaml
+# Render the observ-lib outputs into dashboards/ alerts/ rules/ (alerts + rules by group)
 observ-lib-build: observ-lib-vendor
-    cd {{OBSERV_LIB}} && mkdir -p dashboards_out && jsonnet -J vendor -m dashboards_out lib/dashboards.jsonnet && jsonnet -J vendor -S lib/alerts.jsonnet > prometheus_alerts.yaml
+    cd {{OBSERV_LIB}} && mkdir -p dashboards alerts rules && jsonnet -J vendor -m dashboards -e 'local d=(import "mixin.libsonnet").grafanaDashboards; { [n]: std.manifestJsonEx(d[n], "  ") for n in std.objectFields(d) }' && jsonnet -J vendor -m alerts -e 'local a=(import "mixin.libsonnet").prometheusAlerts; { [g.name + ".yaml"]: std.manifestYamlDoc({ groups: [g] }) for g in a.groups }' && jsonnet -J vendor -m rules -e 'local r=(import "mixin.libsonnet").prometheusRules; { [g.name + ".yaml"]: std.manifestYamlDoc({ groups: [g] }) for g in r.groups }'
 
 # promtool-test the rendered alerts
 observ-lib-test:
