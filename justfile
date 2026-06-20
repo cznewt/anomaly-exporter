@@ -4,7 +4,7 @@
 REGISTRY := "ghcr.io"
 IMAGE := "cznewt/anomaly-exporter"
 TAG := `cat VERSION`
-CHART := "charts/anomaly-exporter"
+CHART := "operations/anomaly-exporter-helm-chart"
 CHARTS_NAMESPACE := "cznewt/charts"
 
 default:

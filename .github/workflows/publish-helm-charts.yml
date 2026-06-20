@@ -5,7 +5,7 @@ on:
   push:
     branches: ["main"]
     paths:
-      - charts/**
+      - operations/anomaly-exporter-helm-chart/**
 
 env:
   REGISTRY: ghcr.io
@@ -33,12 +33,12 @@ jobs:
             ${{ env.REGISTRY }} -u ${{ github.actor }} --password-stdin
 
       - name: Lint chart
-        run: helm lint charts/anomaly-exporter
+        run: helm lint operations/anomaly-exporter-helm-chart
 
       - name: Package and push chart
         run: |
           mkdir -p /tmp/charts
-          helm package charts/anomaly-exporter -d /tmp/charts
+          helm package operations/anomaly-exporter-helm-chart -d /tmp/charts
           for pkg in /tmp/charts/*.tgz; do
             echo "Pushing $pkg to oci://${REGISTRY}/${CHARTS_NAMESPACE}"
             helm push "$pkg" "oci://${REGISTRY}/${CHARTS_NAMESPACE}"

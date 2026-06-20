@@ -1,4 +1,4 @@
-# anomaly-exporter
+# Anomaly Exporter for Prometheus
 
 An anomaly-detection exporter for Prometheus, built on the
 [multi-target exporter pattern](https://prometheus.io/docs/guides/multi-target-exporter/).
@@ -133,7 +133,7 @@ helm install anomaly-exporter oci://ghcr.io/cznewt/charts/anomaly-exporter \
 ```
 
 Put your modules under `config:` in values (or point `existingConfigMap` at a
-ConfigMap you manage). See [`charts/anomaly-exporter`](charts/anomaly-exporter/).
+ConfigMap you manage). See [`operations/anomaly-exporter-helm-chart`](operations/anomaly-exporter-helm-chart/).
 
 ## Wire up Prometheus
 
