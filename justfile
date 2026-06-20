@@ -32,6 +32,14 @@ debug MODULE TARGET:
 test:
     .venv/bin/pytest -q
 
+# Serve the docs locally with live reload (expects mkdocs installed)
+docs-serve:
+    mkdocs serve
+
+# Build the docs site (strict; mirrors the Pages workflow)
+docs-build:
+    mkdocs build --strict
+
 # --- Container registry (ghcr) ---
 
 # Log in to ghcr. Set GHCR_USER + GHCR_TOKEN (a GitHub PAT with write:packages).

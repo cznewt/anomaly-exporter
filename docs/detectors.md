@@ -65,6 +65,24 @@ fit per series per probe) and pulls in Prophet and its Stan backend. Give module
 that use it a generous `scrape_timeout`, and enough `lookback` to cover at least a
 couple of seasonal cycles.
 
+**Config sample**:
+
+```yaml
+modules:
+  mem-prophet:
+    detector: prophet
+    lookback: 7d
+    step: 5m
+    eval_points: 12          # last hour at 5m resolution
+    min_train_points: 30
+    labels: [namespace, pod]
+    timeout: 120s            # Prophet fits are slow; give the probe headroom
+    prophet:
+      interval_width: 0.95
+      daily_seasonality: true
+      weekly_seasonality: auto
+```
+
 ---
 
 ## holt_winters
@@ -92,6 +110,23 @@ trend-only fit. **Use it when** you want seasonality awareness without Prophet's
 weight. **Costs**: needs a fairly regular series and a correct `season_length`; a
 wrong `season_length` makes normal data look anomalous.
 
+**Config sample**:
+
+```yaml
+modules:
+  traffic-holt-winters:
+    detector: holt_winters
+    lookback: 7d
+    step: 30m
+    eval_points: 6           # last 3h at 30m resolution
+    labels: [route]
+    holt_winters:
+      season_length: 48      # one day at 30m resolution
+      trend: add
+      seasonal: add
+      k: 3
+```
+
 ---
 
 ## iqr
@@ -112,6 +147,20 @@ by the fence width, capped at `1`.
 **Use it when** the metric is flat-ish or noisy and you want something
 training-free, fast, and robust to a few bad points in the baseline. **Costs**: no
 trend or seasonality model.
+
+**Config sample**:
+
+```yaml
+modules:
+  cpu-iqr:
+    detector: iqr
+    lookback: 1d
+    step: 1m
+    eval_points: 10
+    labels: [pod]
+    iqr:
+      k: 1.5
+```
 
 ---
 
@@ -135,6 +184,19 @@ never divides by zero.
 flat-ish metric, with a baseline that resists spikes. **Costs**: no trend or
 seasonality model.
 
+**Config sample**:
+
+```yaml
+modules:
+  latency-zscore:
+    detector: zscore
+    lookback: 1d
+    step: 1m
+    labels: [service]
+    zscore:
+      z_max: 4
+```
+
 ---
 
 ## mean_sigma
@@ -156,6 +218,19 @@ baseline (zero stddev) uses a neutral scale to avoid dividing by zero.
 **Use it when** the baseline is clean and roughly normal. **Costs**: not robust (a
 single large value in the training window inflates both mean and stddev); no trend
 or seasonality model.
+
+**Config sample**:
+
+```yaml
+modules:
+  rps-mean-sigma:
+    detector: mean_sigma
+    lookback: 6h
+    step: 1m
+    labels: [job]
+    mean_sigma:
+      z_max: 4
+```
 
 ---
 
@@ -180,6 +255,20 @@ Points where the band is not yet defined (or sigma is zero) score `0`.
 **Use it when** the baseline drifts over time and a fixed fence would constantly
 trip. **Costs**: no seasonality; needs some variance to form a sigma, and by
 design it tolerates sustained level shifts.
+
+**Config sample**:
+
+```yaml
+modules:
+  queue-ewma:
+    detector: ewma
+    lookback: 12h
+    step: 1m
+    labels: [queue]
+    ewma:
+      span: 24
+      k: 3
+```
 
 ---
 
