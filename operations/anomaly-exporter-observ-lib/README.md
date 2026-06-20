@@ -16,11 +16,19 @@ config.libsonnet     default config (uid, selectors, thresholds) + imports the s
 signals/*.libsonnet  one file per detector (prophet, holt_winters, iqr, zscore,
                      mean_sigma, ewma); windows-observ-lib style
 main.libsonnet       new(config) -> pack.build(signals, groups, alerts)
-mixin.libsonnet      asMonitoringMixin(): grafanaDashboards + prometheusAlerts
-lib/*.jsonnet        render entrypoints (dashboards JSON, alerts YAML)
+mixin.libsonnet      grafanaDashboards + prometheusAlerts + prometheusRules
 tests/tests.yaml     promtool unit tests for the alerts
 jsonnetfile.json     depends on cznewt/observ-viz
+
+dashboards/          rendered dashboard JSON, one per dashboard       [generated]
+alerts/              rendered alert rules, one YAML per group         [generated]
+rules/               rendered recording rules, one YAML per group     [generated]
 ```
+
+The `dashboards/`, `alerts/`, and `rules/` folders hold the committed rendered
+outputs; `just observ-lib-build` regenerates them (alerts and rules one file per
+group). Runbooks are not shipped here; they are linked dynamically by the docs
+pipeline.
 
 The dashboard has one row per detector, each built from its `signals/<detector>.libsonnet`.
 
@@ -42,7 +50,7 @@ p.asMonitoringMixin()    // { grafanaDashboards+::, prometheusAlerts+:: }
 Needs `jb`, `jsonnet`, `jsonnetfmt`, and `promtool` on PATH. From the repo root:
 
 ```bash
-just observ-lib-build   # jb install + render dashboards_out/*.json + prometheus_alerts.yaml
+just observ-lib-build   # jb install + render into dashboards/ alerts/ rules/ (committed)
 just observ-lib-test    # promtool-test the rendered alerts
 just observ-lib-fmt     # jsonnetfmt
 ```
