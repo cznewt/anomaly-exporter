@@ -1,4 +1,4 @@
-# Anomaly Exporter
+# Anomaly Exporter for Prometheus
 
 A multi-target Prometheus exporter that scores PromQL queries for anomalies. It
 follows the [multi-target exporter pattern](https://prometheus.io/docs/guides/multi-target-exporter/):

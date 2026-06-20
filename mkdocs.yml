@@ -1,4 +1,4 @@
-site_name: Anomaly Exporter
+site_name: Anomaly Exporter for Prometheus
 site_description: A multi-target Prometheus exporter that scores PromQL queries for anomalies.
 
 theme:
