@@ -1,32 +1,23 @@
+// Default config for the anomaly-exporter observ-viz pack.
+// Override any field by passing it to main.new({ ... }).
 {
-  _config+:: {
-    // Selector for the exporter's OWN metrics (the single-target /metrics job):
-    // up, anomaly_exporter_build_info, anomaly_exporter_probes_total, ...
-    selector: 'job="anomaly-exporter"',
+  uid: 'anomaly-exporter',
+  dashboardTitle: 'Anomaly Exporter',
+  dashboardTags: ['anomaly-exporter'],
+  datasource: '${datasource}',
 
-    // Selector for the PROBE series (anomaly_score, anomaly_probe_success, ...),
-    // which come from the per-module /probe scrape jobs and so usually carry a
-    // different job label. Leave empty to match all, or scope it,
-    // e.g. 'job=~"anomaly-.+"'.
-    scoreSelector: '',
+  // Dashboard query selector for the PROBE series (anomaly_score,
+  // anomaly_probe_success, ...), driven by the $job template variable.
+  selector: 'job=~"$job"',
+  varMetric: 'anomaly_probe_success',
 
-    // Label conventions.
-    instanceLabel: 'instance',
+  // Static selectors for ALERT expressions (alerts cannot use the $job var):
+  alertSelector: '',                            // probe series; scope e.g. 'job=~"anomaly-.+"'
+  exporterSelector: 'job="anomaly-exporter"',   // the exporter's own /metrics job
 
-    // Grafana.
-    datasourceName: 'default',
-    dashboardTags: ['anomaly-exporter'],
-    dashboardUids: {
-      overview: 'anomaly-exporter-overview',
-    },
-
-    // Alert tuning.
-    alerts: {
-      scoreThreshold: 0.8,   // anomaly_score above this is an anomaly
-      scoreFor: '15m',
-      probeFailFor: '15m',
-      probeErrorFor: '15m',
-      downFor: '5m',
-    },
-  },
+  // Alert tuning.
+  scoreThreshold: 0.8,   // anomaly_score above this is an anomaly
+  scoreFor: '15m',
+  probeFailFor: '15m',
+  downFor: '5m',
 }
