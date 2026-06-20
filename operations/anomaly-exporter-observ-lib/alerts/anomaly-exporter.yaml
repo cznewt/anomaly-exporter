@@ -1,35 +1,39 @@
-"groups":
-  - "name": "anomaly-exporter"
-    "rules":
-      - "alert": "AnomalyDetected"
-        "annotations":
-          "description": "anomaly_score is {{ $value | printf \"%.2f\" }} on {{ $labels.instance }} (threshold 0.8)."
-          "summary": "anomaly-exporter detected a metric anomaly."
-        "expr": "anomaly_score{} > 0.8"
-        "for": "15m"
-        "labels":
-          "severity": "warning"
-      - "alert": "AnomalyProbeFailing"
-        "annotations":
-          "description": "anomaly_probe_success is 0 on {{ $labels.instance }} (the query failed or Prometheus was unreachable)."
-          "summary": "An anomaly-exporter probe is failing."
-        "expr": "anomaly_probe_success{} == 0"
-        "for": "15m"
-        "labels":
-          "severity": "warning"
-      - "alert": "AnomalyExporterProbeErrors"
-        "annotations":
-          "description": "Module {{ $labels.module }} probes are failing on {{ $labels.instance }}."
-          "summary": "anomaly-exporter is recording probe failures."
-        "expr": "increase(anomaly_exporter_probes_total{job=\"anomaly-exporter\", result=\"failure\"}[15m]) > 0"
-        "for": "15m"
-        "labels":
-          "severity": "warning"
-      - "alert": "AnomalyExporterDown"
-        "annotations":
-          "description": "{{ $labels.instance }} has been unreachable for more than 5m."
-          "summary": "anomaly-exporter is down."
-        "expr": "up{job=\"anomaly-exporter\"} == 0"
-        "for": "5m"
-        "labels":
-          "severity": "critical"
+groups:
+- name: anomaly-exporter
+  rules:
+  - alert: AnomalyDetected
+    annotations:
+      description: anomaly_score is {{ $value | printf "%.2f" }} on {{ $labels.instance
+        }} (threshold 0.8).
+      summary: anomaly-exporter detected a metric anomaly.
+    expr: anomaly_score{} > 0.8
+    for: 15m
+    labels:
+      severity: warning
+  - alert: AnomalyProbeFailing
+    annotations:
+      description: anomaly_probe_success is 0 on {{ $labels.instance }} (the query
+        failed or Prometheus was unreachable).
+      summary: An anomaly-exporter probe is failing.
+    expr: anomaly_probe_success{} == 0
+    for: 15m
+    labels:
+      severity: warning
+  - alert: AnomalyExporterProbeErrors
+    annotations:
+      description: Module {{ $labels.module }} probes are failing on {{ $labels.instance
+        }}.
+      summary: anomaly-exporter is recording probe failures.
+    expr: increase(anomaly_exporter_probes_total{job="anomaly-exporter", result="failure"}[15m])
+      > 0
+    for: 15m
+    labels:
+      severity: warning
+  - alert: AnomalyExporterDown
+    annotations:
+      description: '{{ $labels.instance }} has been unreachable for more than 5m.'
+      summary: anomaly-exporter is down.
+    expr: up{job="anomaly-exporter"} == 0
+    for: 5m
+    labels:
+      severity: critical
