@@ -1,7 +1,7 @@
 """Command-line entrypoint: ``python -m anomaly_exporter``.
 
 Flag names mirror the Prometheus ecosystem (``--config.file``,
-``--web.listen-address``) so it feels like blackbox_exporter to operate.
+``--web.listen-address``).
 """
 from __future__ import annotations
 
@@ -16,7 +16,7 @@ from .config import load_config
 def parse_args(argv=None):
     p = argparse.ArgumentParser(
         prog="anomaly-exporter",
-        description="Blackbox-style anomaly exporter for Prometheus.",
+        description="Multi-target anomaly exporter for Prometheus.",
     )
     p.add_argument(
         "--config.file", dest="config_file",

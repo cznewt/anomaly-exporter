@@ -1,0 +1,49 @@
+replicaCount: 1
+
+image:
+  repository: ghcr.io/cznewt/anomaly-exporter
+  pullPolicy: IfNotPresent
+  tag: ""                 # defaults to the chart appVersion
+
+imagePullSecrets: []
+nameOverride: ""
+fullnameOverride: ""
+
+service:
+  type: ClusterIP
+  port: 9888
+
+# The exporter config (config.yml). Provide it one of two ways:
+#   1. inline here as YAML under `config:`, or
+#   2. with `--set-file config=./config.yml` (raw file contents), or
+#   3. point `existingConfigMap` at a ConfigMap that has a `config.yml` key.
+# When all are empty, the image's baked-in default config is used.
+config: {}
+  # prometheus:
+  #   url: http://prometheus-operated.monitoring.svc:9090
+  #   timeout: 60s
+  # modules:
+  #   cpu-iqr:
+  #     detector: iqr
+  #     lookback: 1d
+  #     step: 1m
+  #     labels: [pod]
+  #     iqr: { k: 1.5 }
+
+existingConfigMap: ""
+
+# Optional Prometheus Operator ServiceMonitor for the exporter's OWN /metrics
+# (operational metrics). Anomaly scores come from /probe and need a multi-target
+# scrape job or a Probe CRD instead; see the chart README.
+serviceMonitor:
+  enabled: false
+  interval: 60s
+  labels: {}
+
+resources: {}
+podAnnotations: {}
+podSecurityContext: {}
+securityContext: {}
+nodeSelector: {}
+tolerations: []
+affinity: {}

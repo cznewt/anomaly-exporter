@@ -1,0 +1,15 @@
+{{- if and .Values.config (not .Values.existingConfigMap) }}
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ include "anomaly-exporter.fullname" . }}-config
+  labels:
+    {{- include "anomaly-exporter.labels" . | nindent 4 }}
+data:
+  config.yml: |
+{{- if kindIs "string" .Values.config }}
+{{ .Values.config | indent 4 }}
+{{- else }}
+{{ .Values.config | toYaml | indent 4 }}
+{{- end }}
+{{- end }}

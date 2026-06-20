@@ -1,0 +1,18 @@
+site_name: Anomaly Exporter
+site_description: A multi-target Prometheus exporter that scores PromQL queries for anomalies.
+
+theme:
+  name: readthedocs
+
+nav:
+  - Home: index.md
+  - Usage:
+    - Configuration: configuration.md
+    - Detectors: detectors.md
+    - Prometheus: prometheus.md
+  - Reference:
+    - Endpoints: endpoints.md
+
+markdown_extensions:
+  - toc:
+      permalink: true

@@ -1,8 +1,8 @@
-"""Blackbox-style anomaly exporter for Prometheus.
+"""Multi-target anomaly exporter for Prometheus.
 
 A single exporter that runs PromQL range queries on demand and scores them for
 anomalies with a config-selected detector, following Prometheus' multi-target
-(blackbox_exporter) pattern: ``GET /probe?module=<name>&target=<promql>``.
+exporter pattern: ``GET /probe?module=<name>&target=<promql>``.
 """
 import os
 

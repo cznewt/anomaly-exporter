@@ -1,8 +1,8 @@
-"""Flask application: the blackbox-style ``/probe`` endpoint and friends.
+"""Flask application: the multi-target ``/probe`` endpoint and friends.
 
 ``/probe?module=<name>&target=<promql>`` runs the module's range query against the
 backing Prometheus, scores each returned series with the module's detector, and
-returns the scores as Prometheus exposition — synchronously, one fresh registry
+returns the scores as Prometheus exposition synchronously, one fresh registry
 per scrape. ``/metrics`` exposes the exporter's *own* operational metrics.
 """
 from __future__ import annotations
@@ -28,7 +28,7 @@ from .prom import PromClient
 log = logging.getLogger("anomaly-exporter")
 
 # Subtracted from the scrape-timeout header so we answer before Prometheus gives
-# up on the scrape (mirrors blackbox_exporter).
+# up on the scrape.
 _TIMEOUT_BUFFER = 0.5
 
 
@@ -183,8 +183,7 @@ def create_app(config) -> Flask:
 
     @app.route("/")
     def index():
-        # A small landing page with a probe form, in the spirit of the blackbox
-        # and snmp exporters' debug pages.
+        # A small landing page with a probe form for ad-hoc checks.
         options = "".join(
             f'<option value="{name}">{name} ({m.detector})</option>'
             for name, m in sorted(state["config"].modules.items())
@@ -198,10 +197,10 @@ def create_app(config) -> Flask:
             '<!DOCTYPE html><html lang="en"><head><meta charset="utf-8">'
             "<title>Anomaly Exporter</title><style>" + css + "</style></head><body>"
             "<h1>Anomaly Exporter</h1>"
-            "<p>Blackbox-style anomaly detection for Prometheus. Scrape "
+            "<p>Multi-target anomaly detection for Prometheus. Scrape "
             "<code>/probe?module=&lt;name&gt;&amp;target=&lt;promql&gt;</code>.</p>"
-            '<ul><li><a href="/metrics">Metrics</a> &mdash; the exporter\'s own metrics</li>'
-            '<li><a href="/config">Config</a> &mdash; loaded configuration (token redacted)</li></ul>'
+            '<ul><li><a href="/metrics">Metrics</a> - the exporter\'s own metrics</li>'
+            '<li><a href="/config">Config</a> - loaded configuration (token redacted)</li></ul>'
             '<h2>Probe</h2><form action="/probe" method="get">'
             f'<label>Module <select name="module">{options}</select></label>'
             '<label>Target <input name="target" size="60" '

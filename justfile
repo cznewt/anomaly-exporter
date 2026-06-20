@@ -1,9 +1,11 @@
 #!/usr/bin/env just --justfile
 
-# Image coordinates (override on the CLI, e.g. `just TAG=dev publish`)
+# Image + chart coordinates (override on the CLI, e.g. `just TAG=dev publish`)
 REGISTRY := "ghcr.io"
 IMAGE := "cznewt/anomaly-exporter"
 TAG := `cat VERSION`
+CHART := "charts/anomaly-exporter"
+CHARTS_NAMESPACE := "cznewt/charts"
 
 default:
   just --list
@@ -52,3 +54,20 @@ publish: image push
 # Print the fully-qualified image reference
 image-ref:
     @echo "{{REGISTRY}}/{{IMAGE}}:{{TAG}}"
+
+# --- Helm chart (ghcr OCI) ---
+
+# Lint the chart
+chart-lint:
+    helm lint {{CHART}}
+
+# Render the chart to stdout (sanity check)
+chart-template:
+    helm template anomaly-exporter {{CHART}}
+
+# Package + push the chart to ghcr OCI (set GHCR_USER + GHCR_TOKEN)
+chart-publish:
+    echo "${GHCR_TOKEN:?set GHCR_TOKEN to a GitHub PAT with write:packages}" | helm registry login {{REGISTRY}} -u "${GHCR_USER:?set GHCR_USER to your GitHub username}" --password-stdin
+    rm -rf /tmp/anomaly-exporter-charts && mkdir -p /tmp/anomaly-exporter-charts
+    helm package {{CHART}} -d /tmp/anomaly-exporter-charts
+    helm push /tmp/anomaly-exporter-charts/*.tgz "oci://{{REGISTRY}}/{{CHARTS_NAMESPACE}}"

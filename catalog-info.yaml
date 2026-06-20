@@ -1,0 +1,16 @@
+apiVersion: backstage.io/v1alpha1
+kind: Component
+metadata:
+  name: anomaly-exporter
+  title: Anomaly Exporter
+  description: A multi-target Prometheus exporter that scores PromQL queries for anomalies with configurable detectors.
+  tags:
+    - monitoring
+    - prometheus
+    - exporter
+  annotations:
+    github.com/project-slug: cznewt/anomaly-exporter
+    backstage.io/techdocs-ref: dir:.
+spec:
+  type: service
+  lifecycle: experimental

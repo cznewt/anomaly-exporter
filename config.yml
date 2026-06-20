@@ -1,6 +1,6 @@
 # anomaly-exporter configuration.
 #
-# Mirrors blackbox_exporter's `modules:` layout. Prometheus probes a module +
+# Follows the multi-target exporter pattern. Prometheus probes a module +
 # target with:  GET /probe?module=<name>&target=<promql>
 # Each module names a `detector` and carries that detector's params in a block
 # keyed by the detector name. See README.md for the matching scrape_configs.

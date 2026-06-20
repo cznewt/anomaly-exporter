@@ -1,8 +1,8 @@
 """Configuration loading and validation.
 
-The config mirrors blackbox_exporter's ``modules:`` layout: every module names a
+Follows the multi-target exporter pattern's module layout: every module names a
 ``detector`` and carries that detector's parameters in a block keyed by the
-detector name (just as blackbox keys a prober's options under ``http:`` / ``tcp:``).
+detector name.
 Common knobs (lookback, step, eval_points, labels, ...) live at module level.
 """
 from __future__ import annotations

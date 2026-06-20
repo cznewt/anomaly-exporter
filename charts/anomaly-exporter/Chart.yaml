@@ -1,0 +1,13 @@
+apiVersion: v2
+name: anomaly-exporter
+description: Multi-target Prometheus exporter that scores PromQL queries for anomalies with configurable detectors.
+type: application
+version: 0.1.0
+appVersion: "2026.6-r1"
+keywords:
+  - prometheus
+  - monitoring
+  - anomaly-detection
+  - exporter
+sources:
+  - https://github.com/cznewt/anomaly-exporter

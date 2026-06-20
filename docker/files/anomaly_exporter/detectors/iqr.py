@@ -7,7 +7,7 @@ from .base import Detector
 class IqrDetector(Detector):
     """Score trailing points by how far they fall outside a robust IQR fence.
 
-    The fence ``[Q1 - k·IQR, Q3 + k·IQR]`` comes from the training window, so the
+    The fence ``[Q1 - k*IQR, Q3 + k*IQR]`` comes from the training window, so the
     most recent points are judged against an unspoiled baseline. Training-free
     and robust to baseline outliers, but seasonality-naive.
     """

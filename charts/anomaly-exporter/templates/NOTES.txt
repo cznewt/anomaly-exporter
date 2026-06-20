@@ -1,0 +1,18 @@
+anomaly-exporter is installed as {{ include "anomaly-exporter.fullname" . }}.
+
+In-cluster address:
+  {{ include "anomaly-exporter.fullname" . }}.{{ .Release.Namespace }}.svc:{{ .Values.service.port }}
+
+Try a probe (port-forward first):
+  kubectl -n {{ .Release.Namespace }} port-forward svc/{{ include "anomaly-exporter.fullname" . }} {{ .Values.service.port }}:{{ .Values.service.port }}
+  curl -s 'localhost:{{ .Values.service.port }}/probe?module=<name>&target=<promql>'
+
+{{- if and (not .Values.config) (not .Values.existingConfigMap) }}
+
+NOTE: no config provided; the image's baked-in default config.yml is in use.
+Set `config:` (inline or `--set-file config=./config.yml`) or `existingConfigMap`.
+{{- end }}
+
+Scores come from /probe, which uses the multi-target pattern. Point Prometheus at
+it with a scrape job (or a Probe CRD) that carries the query as the target; see
+the chart README and docs/prometheus.md.

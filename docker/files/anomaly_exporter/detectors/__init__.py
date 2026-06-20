@@ -3,8 +3,8 @@
 Each detector module defines a :class:`~.base.Detector` subclass with a unique
 ``.name``. Adding a method is a one-file change: drop in ``mything.py`` and list
 the class below. Heavy third-party imports (prophet, statsmodels) live *inside*
-each detector's ``point_scores``, so importing this registry — to list or
-construct detectors, or to validate config — never pulls them in. Only actually
+each detector's ``point_scores``, so importing this registry (to list or
+construct detectors, or to validate config) never pulls them in. Only actually
 scoring a series does.
 """
 from .base import Detector, InsufficientData

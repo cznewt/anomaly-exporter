@@ -1,4 +1,4 @@
-"""Classic mean ± stddev z-score detector.
+"""Classic mean +/- stddev z-score detector.
 
 The non-robust, dependency-free sibling of ``zscore``: it uses the plain mean and
 standard deviation of the training window instead of median + MAD. Cheapest of

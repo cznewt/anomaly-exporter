@@ -3,7 +3,7 @@
 Builds a *causal* exponentially-weighted moving-average mean and an EWMA residual
 sigma (each shifted one step, so a point is judged only against the points before
 it), then scores each trailing point by how far it sits outside
-``mean ± k·sigma``. Good for slowly drifting baselines where a fixed fence would
+``mean +/- k*sigma``. Good for slowly drifting baselines where a fixed fence would
 constantly trip; like the other lightweight detectors it has no seasonality model.
 """
 from __future__ import annotations
