@@ -32,7 +32,7 @@ debug MODULE TARGET:
 test:
     .venv/bin/pytest -q
 
-# Serve the docs locally with live reload (expects mkdocs installed)
+# Serve the docs locally with live reload (needs: pip install mkdocs-material)
 docs-serve:
     mkdocs serve
 
