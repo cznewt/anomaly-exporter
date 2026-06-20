@@ -37,7 +37,7 @@ nav:
     - Integrations: integrations.md
   - Operations:
     - Helm chart: helm.md
-    - Observability library: observ-lib.md
+    - Observability: observ-lib.md
   - Reference:
     - Endpoints: endpoints.md
 

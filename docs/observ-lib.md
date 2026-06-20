@@ -1,4 +1,4 @@
-# Observability library
+# Observability
 
 A Grafana/Jsonnet observability library (monitoring mixin) for the exporter:
 Prometheus alerts, a recording rule, and an overview dashboard, built with
