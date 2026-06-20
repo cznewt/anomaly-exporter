@@ -1,4 +1,4 @@
-# Helm chart
+# Deployment
 
 A Helm chart deploys the exporter on Kubernetes. It is published as an OCI
 artifact on ghcr, and the source lives in

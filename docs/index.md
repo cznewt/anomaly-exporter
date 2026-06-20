@@ -30,7 +30,7 @@ as it does for other multi-target exporters.
   and trade-offs for each.
 - [Integrations](integrations.md): Prometheus scrape jobs, the Operator `Probe`
   CRD, and Grafana Alloy, plus alerting.
-- [Helm chart](helm.md): deploy on Kubernetes from the ghcr OCI chart.
+- [Deployment](helm.md): deploy on Kubernetes from the ghcr OCI chart.
 - [Observability](observ-lib.md): a grafonnet mixin with alerts, a recording
   rule, and a dashboard.
 - [Endpoints](endpoints.md): the HTTP endpoints and exported metrics.

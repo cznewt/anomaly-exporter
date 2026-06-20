@@ -36,7 +36,7 @@ nav:
     - Detectors: detectors.md
     - Integrations: integrations.md
   - Operations:
-    - Helm chart: helm.md
+    - Deployment: helm.md
     - Observability: observ-lib.md
   - Reference:
     - Endpoints: endpoints.md
