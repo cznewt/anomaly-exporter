@@ -12,13 +12,17 @@ the layout of observ-viz's other packs (e.g. `memcached-observ-lib`).
 ## Files
 
 ```
-config.libsonnet   default config (uid, selectors, thresholds)
-main.libsonnet     new(config) -> pack.build(signals, groups, alerts)
-mixin.libsonnet    asMonitoringMixin(): grafanaDashboards + prometheusAlerts
-lib/*.jsonnet      render entrypoints (dashboards JSON, alerts YAML)
-tests/tests.yaml   promtool unit tests for the alerts
-jsonnetfile.json   depends on cznewt/observ-viz
+config.libsonnet     default config (uid, selectors, thresholds) + imports the signals
+signals/*.libsonnet  one file per detector (prophet, holt_winters, iqr, zscore,
+                     mean_sigma, ewma); windows-observ-lib style
+main.libsonnet       new(config) -> pack.build(signals, groups, alerts)
+mixin.libsonnet      asMonitoringMixin(): grafanaDashboards + prometheusAlerts
+lib/*.jsonnet        render entrypoints (dashboards JSON, alerts YAML)
+tests/tests.yaml     promtool unit tests for the alerts
+jsonnetfile.json     depends on cznewt/observ-viz
 ```
+
+The dashboard has one row per detector, each built from its `signals/<detector>.libsonnet`.
 
 ## Use
 
@@ -54,6 +58,10 @@ scraped by different jobs:
   expressions on the probe series (alerts cannot use `$job`).
 - `exporterSelector` (default `job="anomaly-exporter"`) is for alerts on the
   exporter's own `/metrics` (`up`, `anomaly_exporter_probes_total`).
+- `detectorSelectors` maps each detector to the selector for its dashboard row.
+  `anomaly_score` has no detector label, so scope each to the job(s) running that
+  detector's modules (e.g. `{ prophet: 'job="anomaly-mem"' }`); defaults to the
+  global `selector`.
 
 See the [Observability docs](https://cznewt.github.io/anomaly-exporter/observ-lib/)
 and [Integrations](https://github.com/cznewt/anomaly-exporter/blob/main/docs/integrations.md).
