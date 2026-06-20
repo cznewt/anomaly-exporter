@@ -1,0 +1,37 @@
+# promtool unit tests for the generated alerts.
+# Run with: make test   (after `make prometheus_alerts.yaml`)
+rule_files:
+  - ../prometheus_alerts.yaml
+
+evaluation_interval: 1m
+
+tests:
+  # A sustained high anomaly_score fires AnomalyDetected.
+  - interval: 1m
+    input_series:
+      - series: 'anomaly_score{job="anomaly-mem", instance="exporter:9888", namespace="production", pod="api-0"}'
+        values: '0x10 0.95x40'
+    alert_rule_test:
+      - eval_time: 40m
+        alertname: AnomalyDetected
+        exp_alerts:
+          - exp_labels:
+              severity: warning
+              job: anomaly-mem
+              instance: exporter:9888
+              namespace: production
+              pod: api-0
+
+  # A failing probe fires AnomalyProbeFailing.
+  - interval: 1m
+    input_series:
+      - series: 'anomaly_probe_success{job="anomaly-mem", instance="exporter:9888"}'
+        values: '0x30'
+    alert_rule_test:
+      - eval_time: 20m
+        alertname: AnomalyProbeFailing
+        exp_alerts:
+          - exp_labels:
+              severity: warning
+              job: anomaly-mem
+              instance: exporter:9888
