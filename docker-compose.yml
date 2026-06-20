@@ -1,0 +1,11 @@
+services:
+  anomaly-exporter:
+    build:
+      context: ./docker
+      dockerfile: Dockerfile
+    # image: ghcr.io/cznewt/anomaly-exporter:latest
+    volumes:
+      - ./config.yml:/etc/anomaly-exporter/config.yml:ro
+    ports:
+      - "9888:9888"
+    restart: unless-stopped

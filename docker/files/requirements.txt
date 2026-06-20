@@ -1,0 +1,9 @@
+flask
+waitress
+prometheus-client
+requests
+pandas
+numpy
+pyyaml
+prophet
+statsmodels

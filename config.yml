@@ -1,0 +1,89 @@
+# anomaly-exporter configuration.
+#
+# Mirrors blackbox_exporter's `modules:` layout. Prometheus probes a module +
+# target with:  GET /probe?module=<name>&target=<promql>
+# Each module names a `detector` and carries that detector's params in a block
+# keyed by the detector name. See README.md for the matching scrape_configs.
+
+prometheus:
+  url: http://prometheus:9090       # the Prometheus we QUERY (the data source)
+  # tenant: ""                      # X-Scope-OrgID header (Mimir/Cortex)
+  # token_file: /etc/secrets/token  # bearer token (or inline `token:`)
+  timeout: 60s                      # default per-query HTTP timeout
+
+modules:
+  # Prophet forecast band - for metrics with real trend / seasonality.
+  mem-prophet:
+    detector: prophet
+    lookback: 7d
+    step: 5m
+    eval_points: 12                 # trailing points scored (12 x 5m = 1h)
+    min_train_points: 30
+    labels: [namespace, pod]        # series labels copied onto anomaly_score{}
+    timeout: 120s                   # Prophet is slow; give it headroom
+    prophet:
+      interval_width: 0.95
+      daily_seasonality: true       # auto / true / false / <int Fourier terms>
+      weekly_seasonality: auto
+
+  # IQR fence - training-free, robust, seasonality-naive. Good on flat/noisy.
+  cpu-iqr:
+    detector: iqr
+    lookback: 1d
+    step: 1m
+    eval_points: 10
+    labels: [pod]
+    iqr:
+      k: 1.5                        # 1.5 = mild outliers, 3.0 = far outliers
+
+  # Robust median + MAD z-score - smooth severity ramp.
+  latency-zscore:
+    detector: zscore
+    lookback: 1d
+    step: 1m
+    labels: [service]
+    zscore:
+      z_max: 4                      # robust sigmas that map to score 1.0
+
+  # Classic mean +/- stddev - cheapest; for clean, roughly-normal baselines.
+  rps-mean-sigma:
+    detector: mean_sigma
+    lookback: 6h
+    step: 1m
+    labels: [job]
+    mean_sigma:
+      z_max: 4
+
+  # EWMA control band - tolerates slow drift.
+  queue-ewma:
+    detector: ewma
+    lookback: 12h
+    step: 1m
+    labels: [queue]
+    ewma:
+      span: 24
+      k: 3
+
+  # Holt-Winters seasonal forecast - lighter, seasonal alternative to Prophet.
+  traffic-holt-winters:
+    detector: holt_winters
+    lookback: 7d
+    step: 30m
+    eval_points: 6
+    labels: [route]
+    holt_winters:
+      season_length: 48             # one day at 30m resolution
+      trend: add
+      seasonal: add
+      k: 3
+
+  # Template form: the target is a short value spliced into the module's query:
+  #   GET /probe?module=mem-by-namespace&target=production
+  mem-by-namespace:
+    detector: iqr
+    query: 'container_memory_working_set_bytes{namespace="{{target}}"}'
+    lookback: 1d
+    step: 5m
+    labels: [namespace, pod]
+    iqr:
+      k: 3

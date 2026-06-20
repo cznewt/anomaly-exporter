@@ -1,0 +1,24 @@
+name: Build anomaly-exporter
+
+on:
+  workflow_dispatch:
+  push:
+    branches: ["main"]
+    paths:
+      - docker/**
+      - VERSION
+      - .github/workflows/**
+
+jobs:
+  build-anomaly-exporter:
+    name: "Build anomaly-exporter"
+    if: github.ref == 'refs/heads/main'
+    uses: ./.github/workflows/docker-publish.yml
+    permissions:
+      contents: read
+      id-token: write
+      packages: write
+    secrets: inherit
+    with:
+      APP_NAME: anomaly-exporter
+      APP_DIR: docker
