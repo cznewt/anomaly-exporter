@@ -42,7 +42,7 @@ local pack = import 'libs/common-lib/pack.libsonnet';
       {}
     );
 
-    local thr = std.toString(cfg.scoreThreshold);
+    local thr = '%g' % cfg.scoreThreshold;
     local alerts = [
       {
         name: 'anomaly-exporter',
@@ -104,5 +104,5 @@ local pack = import 'libs/common-lib/pack.libsonnet';
     ];
 
     pack.build(cfg, allSignals, groups, alerts)
-    + { prometheus+: { recordingRules: rules } },
+    + { prometheus+: { rules: rules } },
 }

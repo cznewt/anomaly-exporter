@@ -4,8 +4,8 @@ local lib = import './main.libsonnet';
 
 {
   _config:: {},
-  _pack:: lib.new(self._config),
-  grafanaDashboards+:: self._pack.asMonitoringMixin().grafanaDashboards,
-  prometheusAlerts+:: self._pack.asMonitoringMixin().prometheusAlerts,
-  prometheusRules+:: { groups: self._pack.prometheus.recordingRules },
+  local pack = lib.new($._config),
+  grafanaDashboards+:: pack.asMonitoringMixin().grafanaDashboards,
+  prometheusAlerts+:: pack.asMonitoringMixin().prometheusAlerts,
+  prometheusRules+:: { groups: pack.prometheus.rules },
 }

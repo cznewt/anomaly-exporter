@@ -7,6 +7,7 @@ TAG := `cat VERSION`
 CHART := "operations/anomaly-exporter-helm-chart"
 CHARTS_NAMESPACE := "cznewt/charts"
 OBSERV_LIB := "operations/anomaly-exporter-observ-lib"
+OBSERV_LIB_IMAGE := "ghcr.io/cznewt/observ-lib:latest"
 
 default:
   just --list
@@ -82,19 +83,12 @@ chart-publish:
     helm push /tmp/anomaly-exporter-charts/*.tgz "oci://{{REGISTRY}}/{{CHARTS_NAMESPACE}}"
 
 # --- Observability library (observ-viz pack) ---
+# Rendered through the observ-viz image (observ-viz on the jpath; no local jsonnet/jb).
 
-# Vendor the observ-lib deps (observ-viz) via jsonnet-bundler
-observ-lib-vendor:
-    cd {{OBSERV_LIB}} && jb install
+# Render the observ-lib via the image into dashboards/ alerts/ rules/ (committed outputs)
+observ-lib-build:
+    docker run --rm --user "$(id -u):$(id -g)" -v "$PWD/{{OBSERV_LIB}}":/work -w /work --entrypoint python3 {{OBSERV_LIB_IMAGE}} render.py
 
-# Render the observ-lib outputs into dashboards/ alerts/ rules/ (alerts + rules by group)
-observ-lib-build: observ-lib-vendor
-    cd {{OBSERV_LIB}} && mkdir -p dashboards alerts rules && jsonnet -J vendor -m dashboards -e 'local d=(import "mixin.libsonnet").grafanaDashboards; { [n]: std.manifestJsonEx(d[n], "  ") for n in std.objectFields(d) }' && jsonnet -J vendor -m alerts -e 'local a=(import "mixin.libsonnet").prometheusAlerts; { [g.name + ".yaml"]: std.manifestYamlDoc({ groups: [g] }) for g in a.groups }' && jsonnet -J vendor -m rules -e 'local r=(import "mixin.libsonnet").prometheusRules; { [g.name + ".yaml"]: std.manifestYamlDoc({ groups: [g] }) for g in r.groups }'
-
-# promtool-test the rendered alerts
+# promtool-test the rendered alert rules (needs promtool on PATH)
 observ-lib-test:
-    cd {{OBSERV_LIB}} && promtool test rules tests/*.yaml
-
-# Format the observ-lib jsonnet
-observ-lib-fmt:
-    cd {{OBSERV_LIB}} && find . -name vendor -prune -o \( -name '*.libsonnet' -o -name '*.jsonnet' \) -print | xargs -n 1 jsonnetfmt -i
+    promtool test rules {{OBSERV_LIB}}/tests/*.yaml

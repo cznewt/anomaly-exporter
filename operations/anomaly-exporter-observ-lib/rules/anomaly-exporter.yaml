@@ -1,5 +1,5 @@
-"groups":
-  - "name": "anomaly-exporter"
-    "rules":
-      - "expr": "max by (instance) (anomaly_score{})"
-        "record": "instance:anomaly_score:max"
+groups:
+- name: anomaly-exporter
+  rules:
+  - expr: max by (instance) (anomaly_score{})
+    record: instance:anomaly_score:max

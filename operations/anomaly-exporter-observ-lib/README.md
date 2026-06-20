@@ -17,8 +17,9 @@ signals/*.libsonnet  one file per detector (prophet, holt_winters, iqr, zscore,
                      mean_sigma, ewma); windows-observ-lib style
 main.libsonnet       new(config) -> pack.build(signals, groups, alerts)
 mixin.libsonnet      grafanaDashboards + prometheusAlerts + prometheusRules
+render.py            render entrypoint, run inside the observ-viz image
 tests/tests.yaml     promtool unit tests for the alerts
-jsonnetfile.json     depends on cznewt/observ-viz
+jsonnetfile.json     depends on cznewt/observ-viz (for jb-based consumers)
 
 dashboards/          rendered dashboard JSON, one per dashboard       [generated]
 alerts/              rendered alert rules, one YAML per group         [generated]
@@ -47,12 +48,12 @@ p.asMonitoringMixin()    // { grafanaDashboards+::, prometheusAlerts+:: }
 
 ## Build
 
-Needs `jb`, `jsonnet`, `jsonnetfmt`, and `promtool` on PATH. From the repo root:
+Rendered through the observ-viz image (`ghcr.io/cznewt/observ-lib`), which has
+observ-viz on the jpath, so only Docker is needed (no local jsonnet/jb):
 
 ```bash
-just observ-lib-build   # jb install + render into dashboards/ alerts/ rules/ (committed)
-just observ-lib-test    # promtool-test the rendered alerts
-just observ-lib-fmt     # jsonnetfmt
+just observ-lib-build   # render via the image into dashboards/ alerts/ rules/ (committed)
+just observ-lib-test    # promtool-test the rendered alert rules (needs promtool)
 ```
 
 ## Selectors
